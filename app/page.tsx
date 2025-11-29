@@ -39,7 +39,7 @@ export default function Home() {
               <Link href="/register" className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
                 Start Now
               </Link>
-              <Link href="/facilities" className="bg-primary-700 hover:bg-primary-600 text-white font-semibold py-3 px-8 rounded-lg border-2 border-white transition-colors duration-200">
+              <Link href="/facilities/search" className="bg-primary-700 hover:bg-primary-600 text-white font-semibold py-3 px-8 rounded-lg border-2 border-white transition-colors duration-200">
                 Find a Facility
               </Link>
             </div>
