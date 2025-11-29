@@ -111,8 +111,72 @@ export default function NewMessagePage() {
       return
     }
 
-    alert('Message sent! It will be reviewed and delivered within 48 hours.')
-    // In production, this would call the API to send the message
+    if (!selectedInmate) {
+      alert('Please select a contact.')
+      return
+    }
+
+    // Show confirmation
+    const confirmed = confirm(
+      `Ready to send your letter!\n\n` +
+      `To: ${mockInmates[0].name}\n` +
+      `Facility: ${mockInmates[0].facility}\n\n` +
+      `Your letter will be:\n` +
+      `✓ Professionally printed\n` +
+      `✓ Mailed via USPS First Class\n` +
+      `✓ Delivered in 3-5 business days\n\n` +
+      `Cost: $0.69 (printing + postage)\n\n` +
+      `Send now?`
+    )
+
+    if (!confirmed) return
+
+    try {
+      // Call Lob API to send physical letter
+      const response = await fetch('/api/send-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientName: mockInmates[0].name,
+          recipientInmateNumber: mockInmates[0].inmateNumber,
+          facilityName: mockInmates[0].facility,
+          facilityAddress: {
+            line1: '44750 60th Street West', // From facility database
+            city: 'Lancaster',
+            state: 'CA',
+            zip: '93536'
+          },
+          senderName: 'Your Name', // Replace with actual user
+          subject: subject,
+          message: body,
+          color: false,
+          mailType: 'usps_first_class'
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        alert(
+          `✅ Letter Sent Successfully!\n\n` +
+          `Your letter is on its way!\n\n` +
+          `Expected Delivery: ${result.expectedDeliveryDate}\n` +
+          `Tracking: ${result.trackingUrl}\n` +
+          `Cost: $${result.cost?.toFixed(2)}\n\n` +
+          `${mockInmates[0].name} will receive your letter in 3-5 days! ❤️`
+        )
+        
+        // Clear form
+        setSubject('')
+        setBody('')
+        setScanResult(null)
+      } else {
+        alert(`Error sending letter: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Send error:', error)
+      alert('Failed to send letter. Please try again.')
+    }
   }
 
   const getSeverityColor = (severity: 'low' | 'medium' | 'high') => {
